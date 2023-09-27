@@ -172,7 +172,7 @@ if not is_ait_launch:
     manifest_genenerator.add_ait_keywords('average precision')
     manifest_genenerator.add_ait_keywords('pytorch')
     manifest_genenerator.add_ait_licenses('Apache License Version 2.0')
-    manifest_genenerator.set_ait_quality('https://back-web.aithub.io/ait-hub/api/0.0.1/qualityDimensions/AIQM_Guideline/Coverage_for_distinguished_problem_cases')
+    manifest_genenerator.set_ait_quality('https://ait-hub.pj.aist.go.jp/ait-hub/api/0.0.1/qualityDimensions/AIQM_Guideline/Coverage_for_distinguished_problem_cases')
     
     #### Inventories
     ds_req = manifest_genenerator.format_ait_inventory_requirement(format_=['h5'])

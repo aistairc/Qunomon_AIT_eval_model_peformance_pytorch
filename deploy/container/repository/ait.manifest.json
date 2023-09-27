@@ -3,7 +3,7 @@
   "description": "データセットとpytorchの分類モデルを与え、そのモデルがデータセットの推論結果からモデルの推論の精度を評価する\nこのテストではテストデータに対する推論のaccuracy、AP(average precision)、balanced accuracyを算出する。\nこれらの値は推論の精度が良いほど1に近づく",
   "source_repository": "https://github.com/aistairc/Qunomon_AIT_eval_model_peformance_pytorch",
   "version": "0.2",
-  "quality": "https://back-web.aithub.io/ait-hub/api/0.0.1/qualityDimensions/AIQM_Guideline/Coverage_for_distinguished_problem_cases",
+  "quality": "https://ait-hub.pj.aist.go.jp/ait-hub/api/0.0.1/qualityDimensions/AIQM_Guideline/Coverage_for_distinguished_problem_cases",
   "keywords": [
     "h5",
     "accuracy",
