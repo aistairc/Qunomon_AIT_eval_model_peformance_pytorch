@@ -1,0 +1,90 @@
+{
+  "name": "eval_model_peformance_pytorch",
+  "description": "データセットとpytorchの分類モデルを与え、そのモデルがデータセットの推論結果からモデルの推論の精度を評価する\nこのテストではテストデータに対する推論のaccuracy、AP(average precision)、balanced accuracyを算出する。\nこれらの値は推論の精度が良いほど1に近づく",
+  "source_repository": "https://github.com/aistairc/Qunomon_AIT_eval_model_peformance_pytorch",
+  "version": "0.2",
+  "quality": "https://back-web.aithub.io/ait-hub/api/0.0.1/qualityDimensions/AIQM_Guideline/Coverage_for_distinguished_problem_cases",
+  "keywords": [
+    "h5",
+    "accuracy",
+    "balanced accuracy",
+    "average precision",
+    "pytorch"
+  ],
+  "references": [],
+  "licenses": [
+    "Apache License Version 2.0"
+  ],
+  "inventories": [
+    {
+      "name": "test_dataset",
+      "type": "dataset",
+      "description": "HDF5形式のテストデータセット。内部は2つのHDF5ファイルを用意する(ファイル名は任意)\n(1)モデルに入力される多次元配列を含むデータセット(データセット(1)の要素数はtrained_modelの入力層の要素数と一致)\n(2)データの各サンプルの正解ラベルを含むデータセット(データセット(2)の要素数はtrained_modelの出力層の要素数と一致))\n\nファイル構造:\n sample.h5\n   ├── (1) 入力データセット\n   └── (2) ラベルデータセット\n",
+      "requirement": {
+        "format": [
+          "h5"
+        ]
+      }
+    },
+    {
+      "name": "trained_model",
+      "type": "model",
+      "description": "torch.jit.save関数を使用しTorchScript形式で保存されたモデルデータ。入力と出力の要素数はtest_dataset inventoryと一致させる",
+      "requirement": {
+        "format": [
+          "pth"
+        ]
+      }
+    }
+  ],
+  "parameters": [
+    {
+      "name": "input_dataset_name",
+      "type": "str",
+      "description": "test_dataset inventoryで説明されているデータセット(1)のファイル名",
+      "default_val": "x_test"
+    },
+    {
+      "name": "label_dataset_name",
+      "type": "str",
+      "description": "test_dataset inventoryで説明されているデータセット(2)のファイル名",
+      "default_val": "y_test"
+    }
+  ],
+  "report": {
+    "measures": [
+      {
+        "name": "model_accuracy",
+        "type": "float",
+        "description": "モデルの正解率",
+        "structure": "single",
+        "min": "0",
+        "max": "1"
+      },
+      {
+        "name": "model_average_precision",
+        "type": "float",
+        "description": "クラスごとで平均を取った適合率",
+        "structure": "single",
+        "min": "0",
+        "max": "1"
+      },
+      {
+        "name": "model_balanced_accuracy",
+        "type": "float",
+        "description": "モデルのBalanced accuracy\nデータセットに偏りがある場合、こちらの指標のほうがモデルの精度を適切に測ることができる可能性があります",
+        "structure": "single",
+        "min": "0",
+        "max": "1"
+      }
+    ],
+    "resources": [
+      {
+        "name": "ConfusionMatrixHeatmap",
+        "type": "picture",
+        "description": "混同行列(ヒートマップ)"
+      }
+    ]
+  },
+  "downloads": []
+}
