@@ -372,7 +372,7 @@ def save_confusion_matrix_heatmap(y_test, y_pred, file_path: str=None) -> None:
 #########################################
 
 @log(logger)
-@ait_main(ait_output, path_helper)
+@ait_main(ait_output, path_helper, is_ait_launch)
 def main() -> None:
     # load dataset
     test_ds_path = ait_input.get_inventory_path('test_dataset')
