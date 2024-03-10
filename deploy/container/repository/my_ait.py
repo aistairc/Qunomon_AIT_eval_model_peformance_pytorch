@@ -89,12 +89,12 @@ if not is_ait_launch:
 # should edit
 #########################################
 if not is_ait_launch:
-    requirements_generator.add_package('scikit-learn')
-    requirements_generator.add_package('torch')
-    requirements_generator.add_package('h5py')
-    requirements_generator.add_package('numpy')
-    requirements_generator.add_package('seaborn')
-    requirements_generator.add_package('matplotlib')
+    requirements_generator.add_package('scikit-learn','1.3.2')
+    requirements_generator.add_package('torch','2.1.0')
+    requirements_generator.add_package('h5py','3.6.0')
+    requirements_generator.add_package('numpy','1.22.0')
+    requirements_generator.add_package('seaborn','0.13.0')
+    requirements_generator.add_package('matplotlib','3.7.3')
 
 
 # In[5]:
@@ -165,14 +165,14 @@ if not is_ait_launch:
     manifest_genenerator.set_ait_name('eval_model_peformance_pytorch')
     manifest_genenerator.set_ait_description('データセットとpytorchの分類モデルを与え、そのモデルがデータセットの推論結果からモデルの推論の精度を評価する\nこのテストではテストデータに対する推論のaccuracy、AP(average precision)、balanced accuracyを算出する。\nこれらの値は推論の精度が良いほど1に近づく')
     manifest_genenerator.set_ait_source_repository('https://github.com/aistairc/Qunomon_AIT_eval_model_peformance_pytorch')
-    manifest_genenerator.set_ait_version('0.2')
+    manifest_genenerator.set_ait_version('0.3')
     manifest_genenerator.add_ait_keywords('h5')
     manifest_genenerator.add_ait_keywords('accuracy')
     manifest_genenerator.add_ait_keywords('balanced accuracy')
     manifest_genenerator.add_ait_keywords('average precision')
     manifest_genenerator.add_ait_keywords('pytorch')
     manifest_genenerator.add_ait_licenses('Apache License Version 2.0')
-    manifest_genenerator.set_ait_quality('https://ait-hub.pj.aist.go.jp/ait-hub/api/0.0.1/qualityDimensions/AIQM_Guideline/Coverage_for_distinguished_problem_cases')
+    manifest_genenerator.set_ait_quality('https://ait-hub.pj.aist.go.jp/ait-hub/api/0.0.1/qualityDimensions/機械学習品質マネジメントガイドライン第三版/C-1機械学習モデルの正確性')
     
     #### Inventories
     ds_req = manifest_genenerator.format_ait_inventory_requirement(format_=['h5'])
