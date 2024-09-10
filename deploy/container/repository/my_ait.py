@@ -91,13 +91,13 @@ if not is_ait_launch:
 if not is_ait_launch:
     requirements_generator.add_package('scikit-learn','1.3.2')
     requirements_generator.add_package('torch','2.1.0')
-    requirements_generator.add_package('h5py','3.6.0')
-    requirements_generator.add_package('numpy','1.22.0')
+    requirements_generator.add_package('h5py','3.11.0')
+    requirements_generator.add_package('numpy','1.26.3')
     requirements_generator.add_package('seaborn','0.13.0')
     requirements_generator.add_package('matplotlib','3.7.3')
 
 
-# In[5]:
+# In[ ]:
 
 
 #########################################
@@ -111,7 +111,7 @@ if not is_ait_launch:
     get_ipython().system('pip install -r $requirements_path ')
 
 
-# In[6]:
+# In[ ]:
 
 
 #########################################
@@ -132,7 +132,7 @@ from sklearn import metrics
 from typing import List, Tuple
 
 
-# In[7]:
+# In[ ]:
 
 
 #########################################
@@ -151,7 +151,7 @@ from ait_sdk.develop.annotation import measures, resources, downloads, ait_main 
 # must use modules
 
 
-# In[8]:
+# In[ ]:
 
 
 #########################################
@@ -165,7 +165,7 @@ if not is_ait_launch:
     manifest_genenerator.set_ait_name('eval_model_peformance_pytorch')
     manifest_genenerator.set_ait_description('データセットとpytorchの分類モデルを与え、そのモデルがデータセットの推論結果からモデルの推論の精度を評価する\nこのテストではテストデータに対する推論のaccuracy、AP(average precision)、balanced accuracyを算出する。\nこれらの値は推論の精度が良いほど1に近づく')
     manifest_genenerator.set_ait_source_repository('https://github.com/aistairc/Qunomon_AIT_eval_model_peformance_pytorch')
-    manifest_genenerator.set_ait_version('0.3')
+    manifest_genenerator.set_ait_version('0.4')
     manifest_genenerator.add_ait_keywords('h5')
     manifest_genenerator.add_ait_keywords('accuracy')
     manifest_genenerator.add_ait_keywords('balanced accuracy')
@@ -226,7 +226,7 @@ if not is_ait_launch:
     manifest_path = manifest_genenerator.write()
 
 
-# In[9]:
+# In[ ]:
 
 
 #########################################
@@ -246,7 +246,7 @@ if not is_ait_launch:
     input_generator.write()
 
 
-# In[10]:
+# In[ ]:
 
 
 #########################################
@@ -277,7 +277,7 @@ ait_manifest.read_json(path_helper.get_manifest_file_path())
 ### do not edit cell
 
 
-# In[11]:
+# In[ ]:
 
 
 #########################################
@@ -309,7 +309,7 @@ class H5Dataset(torch.utils.data.Dataset):
         return x, y
 
 
-# In[12]:
+# In[ ]:
 
 
 # support function to do inference with given model and the dataloader.
@@ -328,7 +328,7 @@ def inference(model: torch.jit.ScriptModule,
     return y_true, y_pred
 
 
-# In[13]:
+# In[ ]:
 
 
 # measurement functions. They consume inference results.
@@ -348,7 +348,7 @@ def measure_balanced_accuracy(y_true:List[int], y_pred: List[int]) -> float:
     return metrics.balanced_accuracy_score(y_true, y_pred)
 
 
-# In[14]:
+# In[ ]:
 
 
 # resource-producing function. This consumes inference results.
@@ -363,7 +363,7 @@ def save_confusion_matrix_heatmap(y_test, y_pred, file_path: str=None) -> None:
     plt.savefig(file_path)
 
 
-# In[15]:
+# In[ ]:
 
 
 #########################################
@@ -398,7 +398,7 @@ def main() -> None:
     save_confusion_matrix_heatmap(y_true, y_pred)
 
 
-# In[16]:
+# In[ ]:
 
 
 #########################################
@@ -409,7 +409,7 @@ if __name__ == '__main__':
     main()
 
 
-# In[17]:
+# In[ ]:
 
 
 #########################################
@@ -420,7 +420,7 @@ ait_owner='AIST'
 ait_creation_year='2022'
 
 
-# In[18]:
+# In[ ]:
 
 
 #########################################
@@ -438,10 +438,4 @@ if not is_ait_launch:
     # output License.txt
     license_generator = LicenseGenerator()
     license_generator.write('../top_dir/LICENSE.txt', ait_creation_year, ait_owner)
-
-
-# In[ ]:
-
-
-
 
