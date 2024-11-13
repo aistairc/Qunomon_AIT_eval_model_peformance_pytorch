@@ -1,7 +1,7 @@
 scikit-learn==1.5.2
-torch==2.4.1
-h5py==3.11.0
-numpy==1.26.3
+torch==2.5.1
+h5py==3.12.1
+numpy==1.26.4
 seaborn==0.13.0
 matplotlib==3.7.3
 ./ait_sdk-0.1.24-py3-none-any.whl

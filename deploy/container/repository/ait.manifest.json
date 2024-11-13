@@ -2,7 +2,7 @@
   "name": "eval_model_peformance_pytorch",
   "description": "データセットとpytorchの分類モデルを与え、そのモデルがデータセットの推論結果からモデルの推論の精度を評価する\nこのテストではテストデータに対する推論のaccuracy、AP(average precision)、balanced accuracyを算出する。\nこれらの値は推論の精度が良いほど1に近づく",
   "source_repository": "https://github.com/aistairc/Qunomon_AIT_eval_model_peformance_pytorch",
-  "version": "0.5",
+  "version": "0.6",
   "quality": "https://ait-hub.pj.aist.go.jp/ait-hub/api/0.0.1/qualityDimensions/機械学習品質マネジメントガイドライン第三版/C-1機械学習モデルの正確性",
   "keywords": [
     "h5",
