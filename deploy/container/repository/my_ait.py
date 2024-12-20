@@ -33,7 +33,7 @@
 # 
 # * new cerarion
 
-# In[1]:
+# In[ ]:
 
 
 #########################################
@@ -89,6 +89,7 @@ if not is_ait_launch:
 # should edit
 #########################################
 if not is_ait_launch:
+    requirements_generator.add_package('pandas', '2.2.3')
     requirements_generator.add_package('scikit-learn','1.5.2')
     requirements_generator.add_package('torch','2.5.1')
     requirements_generator.add_package('h5py','3.12.1')
@@ -122,13 +123,17 @@ if not is_ait_launch:
 # import if you need modules cell
 from pathlib import Path
 from os import path
-
-import torch
 import h5py
+import torch
+from torch.utils.data import DataLoader, TensorDataset
+import torch.nn.functional as F
 import numpy as np
+from sklearn.metrics import (f1_score,precision_score,recall_score,
+                             accuracy_score,average_precision_score,
+                             balanced_accuracy_score,confusion_matrix)
+import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn import metrics
 from typing import List, Tuple
 
 
@@ -163,11 +168,12 @@ if not is_ait_launch:
     
     manifest_genenerator = AITManifestGenerator(current_dir)
     manifest_genenerator.set_ait_name('eval_model_peformance_pytorch')
-    manifest_genenerator.set_ait_description('データセットとpytorchの分類モデルを与え、そのモデルがデータセットの推論結果からモデルの推論の精度を評価する\nこのテストではテストデータに対する推論のaccuracy、AP(average precision)、balanced accuracyを算出する。\nこれらの値は推論の精度が良いほど1に近づく')
+    manifest_genenerator.set_ait_description('pytorchの分類モデルの推論結果から、テストデータのaccuracy、AP(average precision)、balanced accuracyを算出し、精度を評価する。\nさらに各クラスのF値を算出し、各クラスに対する強弱を分析する。また、F値のマクロ・マイクロ・加重平均を算出することで、少数クラスの性能やモデル全体の総合的な性能、データの不均衡を考慮した全体の性能を確認・評価できる。')
     manifest_genenerator.set_ait_source_repository('https://github.com/aistairc/Qunomon_AIT_eval_model_peformance_pytorch')
-    manifest_genenerator.set_ait_version('0.6')
+    manifest_genenerator.set_ait_version('0.7')
     manifest_genenerator.add_ait_keywords('h5')
     manifest_genenerator.add_ait_keywords('accuracy')
+    manifest_genenerator.add_ait_keywords('fscore')
     manifest_genenerator.add_ait_keywords('balanced accuracy')
     manifest_genenerator.add_ait_keywords('average precision')
     manifest_genenerator.add_ait_keywords('pytorch')
@@ -180,7 +186,7 @@ if not is_ait_launch:
 
     manifest_genenerator.add_ait_inventories(name='test_dataset',
                                              type_='dataset',
-                                             description="HDF5形式のテストデータセット。内部は2つのHDF5ファイルを用意する(ファイル名は任意)\n(1)モデルに入力される多次元配列を含むデータセット(データセット(1)の要素数はtrained_modelの入力層の要素数と一致)\n(2)データの各サンプルの正解ラベルを含むデータセット(データセット(2)の要素数はtrained_modelの出力層の要素数と一致))\n\nファイル構造:\n sample.h5\n   ├── (1) 入力データセット\n   └── (2) ラベルデータセット\n",
+                                             description="HDF5形式のテストデータセット。内部は2つのHDF5ファイルを用意する(ファイル名は任意)\n(1)モデルに入力される多次元配列を含むデータセット\n(2)データの各サンプルの正解ラベル（クラスのインデックス値）を含むデータセット\n\nファイル構造:\n sample.h5\n ├(1)入力データセット\n └(2)ラベルデータセット\n",
                                              requirement=ds_req)
     manifest_genenerator.add_ait_inventories(name='trained_model',
                                              type_='model',
@@ -198,26 +204,44 @@ if not is_ait_launch:
                                             description='test_dataset inventoryで説明されているデータセット(2)のファイル名', 
                                             default_val='y_test')
     #### Measures
-    manifest_genenerator.add_ait_measures(name='model_accuracy', 
+    manifest_genenerator.add_ait_measures(name='accuracy', 
                                           type_='float', 
-                                          description='モデルの正解率', 
+                                          description='モデルの正解率.値は推論の精度が良いほど1に近づく', 
+                                          structure='single',
+                                          min='0',
+                                          max='1')
+        
+    manifest_genenerator.add_ait_measures(name='average_precision', 
+                                          type_='float', 
+                                          description='クラスごとで平均を取った適合率.値は推論の精度が良いほど1に近づく', 
                                           structure='single',
                                           min='0',
                                           max='1')
     
-    manifest_genenerator.add_ait_measures(name='model_average_precision', 
+    manifest_genenerator.add_ait_measures(name='balanced_accuracy', 
                                           type_='float', 
-                                          description='クラスごとで平均を取った適合率', 
+                                          description='モデルのBalanced accuracy\nデータセットに偏りがある場合、こちらの指標のほうがモデルの精度を適切に測ることができる可能性があります.値は推論の精度が良いほど1に近づく', 
                                           structure='single',
                                           min='0',
                                           max='1')
     
-    manifest_genenerator.add_ait_measures(name='model_balanced_accuracy', 
+    manifest_genenerator.add_ait_measures(name='F_Score_by_class', 
                                           type_='float', 
-                                          description='モデルのBalanced accuracy\nデータセットに偏りがある場合、こちらの指標のほうがモデルの精度を適切に測ることができる可能性があります', 
-                                          structure='single',
+                                          description='各クラスごとのモデルのF値.値は推論の精度が良いほど1に近づく', 
+                                          structure='sequence',
                                           min='0',
                                           max='1')
+    
+    manifest_genenerator.add_ait_measures(name='average_F_Score',
+                                          type_='float',
+                                          structure='sequence',
+                                          description='テストデータセットのF値のマクロ平均値、マイクロ平均値、加重平均値.値は推論の精度が良いほど1に近づく',
+                                          min='0',
+                                          max='1')
+    
+    manifest_genenerator.add_ait_resources(name='Accuracy_Recall_Precision_Fscore_Table',
+                                         type_='table', 
+                                         description='テスト用データセットの各クラスごとの正解率、再現率、適合率、F値とそれぞれのマクロ平均の値、マイクロ平均の値、加重平均の値の表')
     
     manifest_genenerator.add_ait_resources(name='ConfusionMatrixHeatmap', 
                                            type_='picture', 
@@ -237,11 +261,11 @@ if not is_ait_launch:
     from ait_sdk.common.files.ait_input_generator import AITInputGenerator
     input_generator = AITInputGenerator(manifest_path)
     input_generator.add_ait_inventories(name='test_dataset',
-                                        value='test_dataset/aug_test.h5')
+                                        value='mnist_data/aug_test.h5')
     input_generator.add_ait_inventories(name='trained_model',
-                                        value='trained_model/traced_model_aug.pth')
-    input_generator.set_ait_params("input_dataset_name", "data")
-    input_generator.set_ait_params("label_dataset_name", "label")
+                                        value='models/LeNet5_model.pth')
+    input_generator.set_ait_params("input_dataset_name", "test_image")
+    input_generator.set_ait_params("label_dataset_name", "test_label")
     
     input_generator.write()
 
@@ -284,48 +308,69 @@ ait_manifest.read_json(path_helper.get_manifest_file_path())
 # area:functions
 # should edit
 #########################################
-
-# User defined class to handle H5F5 Dataset as torch Dataset class.
-# Note that this class is not well-optimized for computation performance.
-class H5Dataset(torch.utils.data.Dataset):
-    def __init__(self, path: str, x_name: str, y_name: str):
-        self.path = path
-        self.file = h5py.File(self.path, "r")
-        self.x = self.file[x_name]
-        self.y = self.file[y_name]
-        
-        assert isinstance(self.x, h5py.Dataset)
-        assert isinstance(self.y, h5py.Dataset)
-        
-    def __len__(self) -> int:
-        assert len(self.x) == len(self.y)
-        return len(self.x)
+@log(logger)
+def load_h5_test_data(h5_filename,x_name,y_name, batch_size=64):
+    """
+    h5形式のデータセットからデータローダを作成する
+    parameter:
+        h5_filename:ファイルのパス
+        x_name:ファイル内にある画像データセットの名前
+        y_name:ファイル内にある正解ラベルデータセットの名前
+        batch_size:バッチサイズ
+    return:
+        dataloader:データローダ
     
-    def __getitem__(self, idx):
-        x = self.x[idx]
-        y = self.y[idx]
-        x = torch.from_numpy(x.astype(np.float32)).clone()
-        y = torch.from_numpy(y.astype(np.float32)).clone()
-        return x, y
+    """
+    with h5py.File(h5_filename,'r') as h5_file:
+        images = h5_file[x_name][:]
+        labels = h5_file[y_name][:]
+
+
+    images = torch.tensor(images,dtype=torch.float32)
+    labels = torch.tensor(labels,dtype=torch.long)
+
+    dataset = TensorDataset(images,labels)
+    dataloader = DataLoader(dataset,batch_size=batch_size,shuffle=False)
+    return dataloader
 
 
 # In[ ]:
 
 
 # support function to do inference with given model and the dataloader.
-def inference(model: torch.jit.ScriptModule,
-              dataloader: torch.utils.data.DataLoader) -> Tuple[List[int], List[int]]:
-    y_pred = []
+@log(logger)
+def inference(model,dataloader):
+    """
+    正解ラベルとモデルに画像を入力した時の予測ラベルと予測確率を返す関数
+    """
+    #モデルの予測ラベルと正解ラベルを入れるリスト
+    y_pred_label = []
+    y_pred_score = []
     y_true = []
     
     for i, (x,y) in enumerate(dataloader):
         with torch.no_grad():
             output = model(x)
             
-        y_pred += [int(l.argmax()) for l in output]
-        y_true += [int(l) for l in y]
+        #モデルの予測ラベルとスコアを追加
+        y_pred_score += output.tolist()
+        y_pred_label += output.argmax(dim=1).tolist()
+        
+        #正解ラベルを追加
+        y_true += y.tolist()
+    #スコアをnumpy配列に変換した後予測確率に変換
+    y_pred_score=np.array(y_pred_score)
+    y_pred_score = F.softmax(torch.tensor(y_pred_score),dim=1).numpy()
+    #モデルの予測ラベルのリストと正解ラベルのリストをnumpy配列に変換
+    y_pred_label=np.array(y_pred_label)
+    y_true=np.array(y_true)
+    #配列を1次元に変換
+    if len(y_true.shape)>1:
+        y_true=y_true.squeeze()
 
-    return y_true, y_pred
+        
+
+    return y_true, y_pred_score,y_pred_label
 
 
 # In[ ]:
@@ -333,19 +378,77 @@ def inference(model: torch.jit.ScriptModule,
 
 # measurement functions. They consume inference results.
 @log(logger)
-@measures(ait_output, 'model_accuracy')
+@measures(ait_output, 'accuracy')
 def measure_accuracy(y_true: List[int], y_pred: List[int]) -> float:
-    return metrics.accuracy_score(y_true, y_pred)
+    return accuracy_score(y_true, y_pred)
 
 @log(logger)
-@measures(ait_output, 'model_average_precision')
+@measures(ait_output, 'average_precision')
 def measure_average_precision(y_true: List[int], y_pred: List[int]) -> float:
-    return metrics.average_precision_score(y_true, y_pred)
+    return average_precision_score(y_true, y_pred)
 
 @log(logger)
-@measures(ait_output, 'model_balanced_accuracy')
+@measures(ait_output, 'balanced_accuracy')
 def measure_balanced_accuracy(y_true:List[int], y_pred: List[int]) -> float:
-    return metrics.balanced_accuracy_score(y_true, y_pred)
+    return balanced_accuracy_score(y_true, y_pred)
+
+
+# In[ ]:
+
+
+@log(logger)
+@resources(ait_output, path_helper, 'Recall_Precision_Fscore_Table',"Recall_Precision_Fscore_Table.csv")
+def print_csv(f1_class_list,f1_ave_list,precision_class_list,precision_ave_list,recall_class_list,recall_ave_list,class_idx,file_path: str=None):
+    """
+    各クラスごとのF値、適合率、再現率とF値、適合率、再現率のマクロ平均、マイクロ平均、加重平均を表にして表示する関数
+    parameter:
+        f1_class_list:各クラスごとのF値のリスト
+        f1_ave_list:F値のマクロ平均、マイクロ平均、加重平均のリスト
+        precision_class_list:各クラスごとの適合率のリスト
+        precision_ave_list:適合率のマクロ平均、マイクロ平均、加重平均のリスト
+        recall_class_list:各クラスごとの再現率のリスト
+        recall_ave_list:再現率のマクロ平均、マイクロ平均、加重平均のリスト
+        class_idx:クラスのインデックス値のリスト
+        file_path:表の保存先のパス
+    return:
+        value_tables:各クラスごとのF値、適合率、再現率とF値、適合率、再現率のマクロ平均、マイクロ平均、加重平均の表
+    """
+    value_table=pd.DataFrame({
+        "Class":list(class_idx)+["Macro Avarage","Micro Avarage","Weighted Avarage"],
+        "F1 Score":list(f1_class_list)+list(f1_ave_list),
+        "Precision":list(precision_class_list)+list(precision_ave_list),
+        "Recall":list(recall_class_list)+list(recall_ave_list)
+        })
+    print(value_table)
+    value_table.to_csv(file_path,index=False)
+    return value_table
+
+
+# In[ ]:
+
+
+@log(logger)
+@measures(ait_output, 'F_Score_by_class', is_many=True)
+def output_class_f1score(f1_class_list):
+    """
+    各クラスのF値をmeasurementとして出力するための関数
+    parameter:
+        f1_class_list:各クラスのF値のリスト
+    return:
+        np.array(f1_class_list):各クラスのF値のリストをnumpy配列に変換
+    """
+    return np.array(f1_class_list)
+@log(logger)
+@measures(ait_output, 'average_F_Score', is_many=True)
+def output_ave_f1score(f1_ave_list):
+    """
+    マクロ平均、マイクロ平均、加重平均のF値をmeasurementとして出力するための関数
+    parameter:
+        f1_ave_list:マクロ平均、マイクロ平均、加重平均のF値のリスト
+    return:
+        np.array(f1_ave_list):マクロ平均、マイクロ平均、加重平均のF値のリストをnumpy配列に変換
+    """
+    return np.array(f1_ave_list)
 
 
 # In[ ]:
@@ -356,11 +459,20 @@ def measure_balanced_accuracy(y_true:List[int], y_pred: List[int]) -> float:
 @resources(ait_output, path_helper, 'ConfusionMatrixHeatmap', 'confusion_matrix.png')
 def save_confusion_matrix_heatmap(y_test, y_pred, file_path: str=None) -> None:
 
-    cm = metrics.confusion_matrix(y_test, y_pred)
+    cm = confusion_matrix(y_test, y_pred)
     sns.heatmap(cm, annot=True, cmap='Blues')
 
     # save as png
     plt.savefig(file_path)
+
+
+# In[ ]:
+
+
+@log(logger)
+@downloads(ait_output, path_helper, 'Log', 'ait.log')
+def move_log(file_path: str=None) -> str:
+    shutil.move(get_log_path(), file_path)
 
 
 # In[ ]:
@@ -375,27 +487,67 @@ def save_confusion_matrix_heatmap(y_test, y_pred, file_path: str=None) -> None:
 @ait_main(ait_output, path_helper, is_ait_launch)
 def main() -> None:
     # load dataset
-    test_ds_path = ait_input.get_inventory_path('test_dataset')
-    x_name = ait_input.get_method_param_value('input_dataset_name')
-    y_name = ait_input.get_method_param_value('label_dataset_name')
-    test_ds = H5Dataset(test_ds_path, x_name, y_name)
-    test_dl = torch.utils.data.DataLoader(test_ds, batch_size=64)
+    test_h5_path = ait_input.get_inventory_path('test_dataset')
+    test_input_dataset_name = ait_input.get_method_param_value('input_dataset_name')
+    test_label_dataset_name = ait_input.get_method_param_value('label_dataset_name')
+    #データローダの作成
+    test_loader = load_h5_test_data(test_h5_path,test_input_dataset_name,test_label_dataset_name, batch_size=64)
     
-    # load model
+    #モデルの読み込み
     trained_model = ait_input.get_inventory_path('trained_model')
     try:
         model = torch.jit.load(trained_model)
     except Exception as e:
         print(e)
+    model.eval()
     
-    # do inference and measure acc. score
-    y_true, y_pred = inference(model, test_dl)
+    y_true, y_pred_score,y_pred_label =inference(model,test_loader)
+    #クラスのインデックス値のリストを作成
+    class_idx = np.unique(np.concatenate([y_true,y_pred_label]))
+    #各クラスごとのF値、適合率、再現率を計算
+    f1_class_list = f1_score(y_true,y_pred_label,average=None,labels=class_idx)
+    precision_class_list = precision_score(y_true,y_pred_label,average=None,labels=class_idx)
+    recall_class_list = recall_score(y_true,y_pred_label,average=None,labels=class_idx)
     
-    measure_accuracy(y_true, y_pred)
-    measure_average_precision(y_true, y_pred)
-    measure_balanced_accuracy(y_true, y_pred)
+    #F値のマクロ平均、マイクロ平均、加重平均を計算
+    f1_macro = f1_score(y_true,y_pred_label,average='macro')
+    f1_micro = f1_score(y_true,y_pred_label,average='micro')
+    f1_weighted = f1_score(y_true,y_pred_label,average='weighted')
+    #F値のマクロ平均、マイクロ平均、加重平均のリストを作成
+    f1_ave_list=[f1_macro,f1_micro,f1_weighted]
+
     
-    save_confusion_matrix_heatmap(y_true, y_pred)
+    #適合率のマクロ平均、マイクロ平均、加重平均を計算
+    precision_macro = precision_score(y_true,y_pred_label,average='macro')
+    precision_micro = precision_score(y_true,y_pred_label,average='micro')
+    precision_weighted = precision_score(y_true,y_pred_label,average='weighted')
+    #適合率のマクロ平均、マイクロ平均、加重平均のリストを作成
+    precision_ave_list=[precision_macro,precision_micro,precision_weighted]
+
+    #再現率のマクロ平均、マイクロ平均、加重平均を計算
+    recall_macro = recall_score(y_true,y_pred_label,average='macro')
+    recall_micro = recall_score(y_true,y_pred_label,average='micro')
+    recall_weighted = recall_score(y_true,y_pred_label,average='weighted')
+    #再現率のマクロ平均、マイクロ平均、加重平均のリストを作成
+    recall_ave_list=[recall_macro,recall_micro,recall_weighted]
+
+    #各クラスごとのF値、適合率、再現率とF値、適合率、再現率のマクロ平均、マイクロ平均、加重平均の表を表示
+    print_csv(f1_class_list,f1_ave_list,precision_class_list,precision_ave_list,recall_class_list,recall_ave_list,class_idx)
+    
+    #measurementの出力
+    measure_accuracy(y_true, y_pred_label)
+    #多クラス分類と2クラス分類で分岐
+    if len(class_idx)>2:
+        measure_average_precision(y_true, y_pred_score)
+    else:
+        measure_average_precision(y_true, y_pred_label)
+    measure_balanced_accuracy(y_true, y_pred_label)
+    output_class_f1score(f1_class_list)
+    output_ave_f1score(f1_ave_list)
+    
+    save_confusion_matrix_heatmap(y_true, y_pred_label)
+    
+    move_log()
 
 
 # In[ ]:
