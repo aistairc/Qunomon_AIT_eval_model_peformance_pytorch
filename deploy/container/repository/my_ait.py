@@ -89,7 +89,7 @@ if not is_ait_launch:
 # should edit
 #########################################
 if not is_ait_launch:
-    requirements_generator.add_package('pandas', '2.0.3')
+    requirements_generator.add_package('pandas', '2.2.3')
     requirements_generator.add_package('scikit-learn','1.5.2')
     requirements_generator.add_package('torch','2.5.1')
     requirements_generator.add_package('h5py','3.12.1')
@@ -98,7 +98,7 @@ if not is_ait_launch:
     requirements_generator.add_package('matplotlib','3.7.3')
 
 
-# In[ ]:
+# In[5]:
 
 
 #########################################
@@ -112,7 +112,7 @@ if not is_ait_launch:
     get_ipython().system('pip install -r $requirements_path ')
 
 
-# In[ ]:
+# In[6]:
 
 
 #########################################
@@ -137,7 +137,7 @@ import matplotlib.pyplot as plt
 from typing import List, Tuple
 
 
-# In[ ]:
+# In[7]:
 
 
 #########################################
@@ -156,7 +156,7 @@ from ait_sdk.develop.annotation import measures, resources, downloads, ait_main 
 # must use modules
 
 
-# In[ ]:
+# In[8]:
 
 
 #########################################
@@ -250,7 +250,7 @@ if not is_ait_launch:
     manifest_path = manifest_genenerator.write()
 
 
-# In[ ]:
+# In[9]:
 
 
 #########################################
@@ -270,7 +270,7 @@ if not is_ait_launch:
     input_generator.write()
 
 
-# In[ ]:
+# In[10]:
 
 
 #########################################
@@ -301,7 +301,7 @@ ait_manifest.read_json(path_helper.get_manifest_file_path())
 ### do not edit cell
 
 
-# In[ ]:
+# In[11]:
 
 
 #########################################
@@ -334,7 +334,7 @@ def load_h5_test_data(h5_filename,x_name,y_name, batch_size=64):
     return dataloader
 
 
-# In[ ]:
+# In[12]:
 
 
 # support function to do inference with given model and the dataloader.
@@ -373,7 +373,7 @@ def inference(model,dataloader):
     return y_true, y_pred_score,y_pred_label
 
 
-# In[ ]:
+# In[13]:
 
 
 # measurement functions. They consume inference results.
@@ -393,7 +393,7 @@ def measure_balanced_accuracy(y_true:List[int], y_pred: List[int]) -> float:
     return balanced_accuracy_score(y_true, y_pred)
 
 
-# In[ ]:
+# In[14]:
 
 
 @log(logger)
@@ -424,7 +424,7 @@ def print_csv(f1_class_list,f1_ave_list,precision_class_list,precision_ave_list,
     return value_table
 
 
-# In[ ]:
+# In[15]:
 
 
 @log(logger)
@@ -451,7 +451,7 @@ def output_ave_f1score(f1_ave_list):
     return np.array(f1_ave_list)
 
 
-# In[ ]:
+# In[16]:
 
 
 # resource-producing function. This consumes inference results.
@@ -466,7 +466,7 @@ def save_confusion_matrix_heatmap(y_test, y_pred, file_path: str=None) -> None:
     plt.savefig(file_path)
 
 
-# In[ ]:
+# In[17]:
 
 
 @log(logger)
@@ -475,7 +475,7 @@ def move_log(file_path: str=None) -> str:
     shutil.move(get_log_path(), file_path)
 
 
-# In[ ]:
+# In[18]:
 
 
 #########################################
@@ -550,7 +550,7 @@ def main() -> None:
     move_log()
 
 
-# In[ ]:
+# In[19]:
 
 
 #########################################
@@ -561,7 +561,7 @@ if __name__ == '__main__':
     main()
 
 
-# In[ ]:
+# In[20]:
 
 
 #########################################
@@ -572,7 +572,7 @@ ait_owner='AIST'
 ait_creation_year='2022'
 
 
-# In[ ]:
+# In[21]:
 
 
 #########################################
