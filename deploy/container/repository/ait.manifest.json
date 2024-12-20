@@ -1,12 +1,13 @@
 {
   "name": "eval_model_peformance_pytorch",
-  "description": "データセットとpytorchの分類モデルを与え、そのモデルがデータセットの推論結果からモデルの推論の精度を評価する\nこのテストではテストデータに対する推論のaccuracy、AP(average precision)、balanced accuracyを算出する。\nこれらの値は推論の精度が良いほど1に近づく",
+  "description": "pytorchの分類モデルの推論結果から、テストデータのaccuracy、AP(average precision)、balanced accuracyを算出し、精度を評価する。\nさらに各クラスのF値を算出し、各クラスに対する強弱を分析する。また、F値のマクロ・マイクロ・加重平均を算出することで、少数クラスの性能やモデル全体の総合的な性能、データの不均衡を考慮した全体の性能を確認・評価できる。",
   "source_repository": "https://github.com/aistairc/Qunomon_AIT_eval_model_peformance_pytorch",
-  "version": "0.6",
+  "version": "0.7",
   "quality": "https://ait-hub.pj.aist.go.jp/ait-hub/api/0.0.1/qualityDimensions/機械学習品質マネジメントガイドライン第三版/C-1機械学習モデルの正確性",
   "keywords": [
     "h5",
     "accuracy",
+    "fscore",
     "balanced accuracy",
     "average precision",
     "pytorch"
@@ -19,7 +20,7 @@
     {
       "name": "test_dataset",
       "type": "dataset",
-      "description": "HDF5形式のテストデータセット。内部は2つのHDF5ファイルを用意する(ファイル名は任意)\n(1)モデルに入力される多次元配列を含むデータセット(データセット(1)の要素数はtrained_modelの入力層の要素数と一致)\n(2)データの各サンプルの正解ラベルを含むデータセット(データセット(2)の要素数はtrained_modelの出力層の要素数と一致))\n\nファイル構造:\n sample.h5\n   ├── (1) 入力データセット\n   └── (2) ラベルデータセット\n",
+      "description": "HDF5形式のテストデータセット。内部は2つのHDF5ファイルを用意する(ファイル名は任意)\n(1)モデルに入力される多次元配列を含むデータセット\n(2)データの各サンプルの正解ラベル（クラスのインデックス値）を含むデータセット\n\nファイル構造:\n sample.h5\n ├(1)入力データセット\n └(2)ラベルデータセット\n",
       "requirement": {
         "format": [
           "h5"
@@ -54,31 +55,52 @@
   "report": {
     "measures": [
       {
-        "name": "model_accuracy",
+        "name": "accuracy",
         "type": "float",
-        "description": "モデルの正解率",
+        "description": "モデルの正解率.値は推論の精度が良いほど1に近づく",
         "structure": "single",
         "min": "0",
         "max": "1"
       },
       {
-        "name": "model_average_precision",
+        "name": "average_precision",
         "type": "float",
-        "description": "クラスごとで平均を取った適合率",
+        "description": "クラスごとで平均を取った適合率.値は推論の精度が良いほど1に近づく",
         "structure": "single",
         "min": "0",
         "max": "1"
       },
       {
-        "name": "model_balanced_accuracy",
+        "name": "balanced_accuracy",
         "type": "float",
-        "description": "モデルのBalanced accuracy\nデータセットに偏りがある場合、こちらの指標のほうがモデルの精度を適切に測ることができる可能性があります",
+        "description": "モデルのBalanced accuracy\nデータセットに偏りがある場合、こちらの指標のほうがモデルの精度を適切に測ることができる可能性があります.値は推論の精度が良いほど1に近づく",
         "structure": "single",
+        "min": "0",
+        "max": "1"
+      },
+      {
+        "name": "F_Score_by_class",
+        "type": "float",
+        "description": "各クラスごとのモデルのF値.値は推論の精度が良いほど1に近づく",
+        "structure": "sequence",
+        "min": "0",
+        "max": "1"
+      },
+      {
+        "name": "average_F_Score",
+        "type": "float",
+        "description": "テストデータセットのF値のマクロ平均値、マイクロ平均値、加重平均値.値は推論の精度が良いほど1に近づく",
+        "structure": "sequence",
         "min": "0",
         "max": "1"
       }
     ],
     "resources": [
+      {
+        "name": "Accuracy_Recall_Precision_Fscore_Table",
+        "type": "table",
+        "description": "テスト用データセットの各クラスごとの正解率、再現率、適合率、F値とそれぞれのマクロ平均の値、マイクロ平均の値、加重平均の値の表"
+      },
       {
         "name": "ConfusionMatrixHeatmap",
         "type": "picture",
