@@ -98,7 +98,7 @@ if not is_ait_launch:
     requirements_generator.add_package('matplotlib','3.7.3')
 
 
-# In[5]:
+# In[ ]:
 
 
 #########################################
@@ -112,7 +112,7 @@ if not is_ait_launch:
     get_ipython().system('pip install -r $requirements_path ')
 
 
-# In[6]:
+# In[ ]:
 
 
 #########################################
@@ -137,7 +137,7 @@ import matplotlib.pyplot as plt
 from typing import List, Tuple
 
 
-# In[7]:
+# In[ ]:
 
 
 #########################################
@@ -156,7 +156,7 @@ from ait_sdk.develop.annotation import measures, resources, downloads, ait_main 
 # must use modules
 
 
-# In[8]:
+# In[ ]:
 
 
 #########################################
@@ -250,7 +250,7 @@ if not is_ait_launch:
     manifest_path = manifest_genenerator.write()
 
 
-# In[9]:
+# In[ ]:
 
 
 #########################################
@@ -270,7 +270,7 @@ if not is_ait_launch:
     input_generator.write()
 
 
-# In[10]:
+# In[ ]:
 
 
 #########################################
@@ -301,7 +301,7 @@ ait_manifest.read_json(path_helper.get_manifest_file_path())
 ### do not edit cell
 
 
-# In[11]:
+# In[ ]:
 
 
 #########################################
@@ -334,7 +334,7 @@ def load_h5_test_data(h5_filename,x_name,y_name, batch_size=64):
     return dataloader
 
 
-# In[12]:
+# In[ ]:
 
 
 # support function to do inference with given model and the dataloader.
@@ -373,27 +373,27 @@ def inference(model,dataloader):
     return y_true, y_pred_score,y_pred_label
 
 
-# In[13]:
+# In[ ]:
 
 
 # measurement functions. They consume inference results.
 @log(logger)
-@measures(ait_output, 'model_accuracy')
+@measures(ait_output, 'accuracy')
 def measure_accuracy(y_true: List[int], y_pred: List[int]) -> float:
     return accuracy_score(y_true, y_pred)
 
 @log(logger)
-@measures(ait_output, 'model_average_precision')
+@measures(ait_output, 'average_precision')
 def measure_average_precision(y_true: List[int], y_pred: List[int]) -> float:
     return average_precision_score(y_true, y_pred)
 
 @log(logger)
-@measures(ait_output, 'model_balanced_accuracy')
+@measures(ait_output, 'balanced_accuracy')
 def measure_balanced_accuracy(y_true:List[int], y_pred: List[int]) -> float:
     return balanced_accuracy_score(y_true, y_pred)
 
 
-# In[14]:
+# In[ ]:
 
 
 @log(logger)
@@ -424,7 +424,7 @@ def print_csv(f1_class_list,f1_ave_list,precision_class_list,precision_ave_list,
     return value_table
 
 
-# In[15]:
+# In[ ]:
 
 
 @log(logger)
@@ -451,7 +451,7 @@ def output_ave_f1score(f1_ave_list):
     return np.array(f1_ave_list)
 
 
-# In[16]:
+# In[ ]:
 
 
 # resource-producing function. This consumes inference results.
@@ -466,7 +466,7 @@ def save_confusion_matrix_heatmap(y_test, y_pred, file_path: str=None) -> None:
     plt.savefig(file_path)
 
 
-# In[17]:
+# In[ ]:
 
 
 @log(logger)
@@ -475,7 +475,7 @@ def move_log(file_path: str=None) -> str:
     shutil.move(get_log_path(), file_path)
 
 
-# In[18]:
+# In[ ]:
 
 
 #########################################
@@ -550,7 +550,7 @@ def main() -> None:
     move_log()
 
 
-# In[19]:
+# In[ ]:
 
 
 #########################################
@@ -561,7 +561,7 @@ if __name__ == '__main__':
     main()
 
 
-# In[20]:
+# In[ ]:
 
 
 #########################################
@@ -572,7 +572,7 @@ ait_owner='AIST'
 ait_creation_year='2022'
 
 
-# In[21]:
+# In[ ]:
 
 
 #########################################
