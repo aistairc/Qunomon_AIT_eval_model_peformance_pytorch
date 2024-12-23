@@ -90,12 +90,12 @@ if not is_ait_launch:
 #########################################
 if not is_ait_launch:
     requirements_generator.add_package('pandas', '2.2.3')
-    requirements_generator.add_package('scikit-learn','1.5.2')
+    requirements_generator.add_package('scikit-learn','1.6.0')
     requirements_generator.add_package('torch','2.5.1')
     requirements_generator.add_package('h5py','3.12.1')
     requirements_generator.add_package('numpy','1.26.4')
     requirements_generator.add_package('seaborn','0.13.0')
-    requirements_generator.add_package('matplotlib','3.7.3')
+    requirements_generator.add_package('matplotlib','3.9.4')
 
 
 # In[5]:
@@ -170,7 +170,7 @@ if not is_ait_launch:
     manifest_genenerator.set_ait_name('eval_model_peformance_pytorch')
     manifest_genenerator.set_ait_description('pytorchの分類モデルの推論結果から、テストデータのaccuracy、AP(average precision)、balanced accuracyを算出し、精度を評価する。\nさらに各クラスのF値を算出し、各クラスに対する強弱を分析する。また、F値のマクロ・マイクロ・加重平均を算出することで、少数クラスの性能やモデル全体の総合的な性能、データの不均衡を考慮した全体の性能を確認・評価できる。')
     manifest_genenerator.set_ait_source_repository('https://github.com/aistairc/Qunomon_AIT_eval_model_peformance_pytorch')
-    manifest_genenerator.set_ait_version('0.7')
+    manifest_genenerator.set_ait_version('0.9')
     manifest_genenerator.add_ait_keywords('h5')
     manifest_genenerator.add_ait_keywords('accuracy')
     manifest_genenerator.add_ait_keywords('fscore')
@@ -264,11 +264,11 @@ if not is_ait_launch:
     from ait_sdk.common.files.ait_input_generator import AITInputGenerator
     input_generator = AITInputGenerator(manifest_path)
     input_generator.add_ait_inventories(name='test_dataset',
-                                        value='mnist_data/aug_test.h5')
+                                        value='test_dataset/aug_test.h5')
     input_generator.add_ait_inventories(name='trained_model',
-                                        value='models/LeNet5_model.pth')
-    input_generator.set_ait_params("input_dataset_name", "test_image")
-    input_generator.set_ait_params("label_dataset_name", "test_label")
+                                        value='trained_model/traced_model.pth')
+    input_generator.set_ait_params("input_dataset_name", "data")
+    input_generator.set_ait_params("label_dataset_name", "label")
     
     input_generator.write()
 
@@ -564,7 +564,7 @@ if __name__ == '__main__':
     main()
 
 
-# In[20]:
+# In[ ]:
 
 
 #########################################
@@ -575,7 +575,7 @@ ait_owner='AIST'
 ait_creation_year='2022'
 
 
-# In[21]:
+# In[ ]:
 
 
 #########################################
