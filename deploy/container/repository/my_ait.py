@@ -90,15 +90,15 @@ if not is_ait_launch:
 #########################################
 if not is_ait_launch:
     requirements_generator.add_package('pandas', '2.2.3')
-    requirements_generator.add_package('scikit-learn','1.6.0')
-    requirements_generator.add_package('torch','2.5.1')
+    requirements_generator.add_package('scikit-learn','1.6.1')
+    requirements_generator.add_package('torch','2.6.0')
     requirements_generator.add_package('h5py','3.12.1')
-    requirements_generator.add_package('numpy','1.26.4')
-    requirements_generator.add_package('seaborn','0.13.0')
-    requirements_generator.add_package('matplotlib','3.9.4')
+    requirements_generator.add_package('numpy','2.2.3')
+    requirements_generator.add_package('seaborn','0.13.2')
+    requirements_generator.add_package('matplotlib','3.10.0')
 
 
-# In[5]:
+# In[ ]:
 
 
 #########################################
@@ -112,7 +112,7 @@ if not is_ait_launch:
     get_ipython().system('pip install -r $requirements_path ')
 
 
-# In[6]:
+# In[ ]:
 
 
 #########################################
@@ -137,7 +137,7 @@ import matplotlib.pyplot as plt
 from typing import List, Tuple
 
 
-# In[7]:
+# In[ ]:
 
 
 #########################################
@@ -156,7 +156,7 @@ from ait_sdk.develop.annotation import measures, resources, downloads, ait_main 
 # must use modules
 
 
-# In[8]:
+# In[ ]:
 
 
 #########################################
@@ -170,7 +170,7 @@ if not is_ait_launch:
     manifest_genenerator.set_ait_name('eval_model_peformance_pytorch')
     manifest_genenerator.set_ait_description('pytorchの分類モデルの推論結果から、テストデータのaccuracy、AP(average precision)、balanced accuracyを算出し、精度を評価する。\nさらに各クラスのF値を算出し、各クラスに対する強弱を分析する。また、F値のマクロ・マイクロ・加重平均を算出することで、少数クラスの性能やモデル全体の総合的な性能、データの不均衡を考慮した全体の性能を確認・評価できる。')
     manifest_genenerator.set_ait_source_repository('https://github.com/aistairc/Qunomon_AIT_eval_model_peformance_pytorch')
-    manifest_genenerator.set_ait_version('0.9')
+    manifest_genenerator.set_ait_version('0.10')
     manifest_genenerator.add_ait_keywords('h5')
     manifest_genenerator.add_ait_keywords('accuracy')
     manifest_genenerator.add_ait_keywords('fscore')
@@ -253,7 +253,7 @@ if not is_ait_launch:
     manifest_path = manifest_genenerator.write()
 
 
-# In[9]:
+# In[ ]:
 
 
 #########################################
@@ -273,7 +273,7 @@ if not is_ait_launch:
     input_generator.write()
 
 
-# In[10]:
+# In[ ]:
 
 
 #########################################
@@ -304,7 +304,7 @@ ait_manifest.read_json(path_helper.get_manifest_file_path())
 ### do not edit cell
 
 
-# In[11]:
+# In[ ]:
 
 
 #########################################
@@ -337,7 +337,7 @@ def load_h5_test_data(h5_filename,x_name,y_name, batch_size=64):
     return dataloader
 
 
-# In[12]:
+# In[ ]:
 
 
 # support function to do inference with given model and the dataloader.
@@ -376,7 +376,7 @@ def inference(model,dataloader):
     return y_true, y_pred_score,y_pred_label
 
 
-# In[13]:
+# In[ ]:
 
 
 # measurement functions. They consume inference results.
@@ -396,7 +396,7 @@ def measure_balanced_accuracy(y_true:List[int], y_pred: List[int]) -> float:
     return balanced_accuracy_score(y_true, y_pred)
 
 
-# In[14]:
+# In[ ]:
 
 
 @log(logger)
@@ -427,7 +427,7 @@ def print_csv(f1_class_list,f1_ave_list,precision_class_list,precision_ave_list,
     return value_table
 
 
-# In[15]:
+# In[ ]:
 
 
 @log(logger)
@@ -454,7 +454,7 @@ def output_ave_f1score(f1_ave_list):
     return np.array(f1_ave_list)
 
 
-# In[16]:
+# In[ ]:
 
 
 # resource-producing function. This consumes inference results.
@@ -469,7 +469,7 @@ def save_confusion_matrix_heatmap(y_test, y_pred, file_path: str=None) -> None:
     plt.savefig(file_path)
 
 
-# In[17]:
+# In[ ]:
 
 
 @log(logger)
@@ -478,7 +478,7 @@ def move_log(file_path: str=None) -> str:
     shutil.move(get_log_path(), file_path)
 
 
-# In[18]:
+# In[ ]:
 
 
 #########################################
@@ -553,7 +553,7 @@ def main() -> None:
     move_log()
 
 
-# In[19]:
+# In[ ]:
 
 
 #########################################
